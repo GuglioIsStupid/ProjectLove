@@ -41,7 +41,7 @@ local function updateTimerHandle(handle, dt)
 		handle.during(dt, math.max(handle.limit - handle.time, 0))
 
 		while handle.time >= handle.limit and handle.count > 0 do
-			if handle.after(handle.after, handle.subject) == false then
+			if handle.after(handle.after) == false then
 				handle.count = 0
 				break
 			end
@@ -68,8 +68,8 @@ function Timer:update(dt)
 	end
 end
 
-function Timer:during(delay, during, after, subject)
-	local handle = { time = 0, during = during, after = after or _nothing_, limit = delay, count = 1, subject = subject }
+function Timer:during(delay, during, after)
+	local handle = { time = 0, during = during, after = after or _nothing_, limit = delay, count = 1 }
 	self.functions[handle] = true
 	return handle
 end
@@ -167,7 +167,7 @@ __call = function(tween, self, len, subject, target, method, after, ...)
 			local ref, key, delta = unpack(info)
 			ref[key] = ref[key] + delta * ds
 		end
-	end, after, subject)
+	end, after)
 end,
 
 -- fetches function and generated compositions for method `key`

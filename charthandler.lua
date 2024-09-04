@@ -121,6 +121,8 @@ local function readInt32(file, offset)
     return u.i32
 end
 
+local CURRENT_TIME = 0
+
 local opc, len, params
 function processFile(filename, fmt)
     local fmt = fmt or "ft"
@@ -165,20 +167,26 @@ function processFile(filename, fmt)
         end
 
         if opc == "TIME" then
-            if chart[#chart] and (chart[#chart].type == "TIME" and chart[#chart].params == nil) then
-                if not DELAY then DELAY = chart[#chart].time end
-                table.remove(chart, #chart)
-            end
-            table.insert(chart, {
-                type = "TIME",
-                time = params[1]
-            })
+            CURRENT_TIME = params[1]
+            if not DELAY then DELAY = CURRENT_TIME end
         elseif opc == "TARGET" then
-            if chart[#chart].type == "TIME" then
-                if not DELAY then DELAY = chart[#chart].time end
-                chart[#chart].params = params
-                print(params[2], params[3], chart[#chart].time/10000)
-            end
+            table.insert(chart, {
+                type = "TARGET",
+                params = params,
+                time = CURRENT_TIME
+            })
+        elseif opc == "BAR_TIME_SET" then
+            table.insert(chart, {
+                type = "BAR_TIME_SET",
+                params = params,
+                time = CURRENT_TIME
+            })
+        elseif opc == "TARGET_FLYING_TIME" then
+            table.insert(chart, {
+                type = "TARGET_FLYING_TIME",
+                params = params,
+                time = CURRENT_TIME
+            })
         end
 
         ::skip1::

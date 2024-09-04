@@ -3,6 +3,8 @@
 idk i thought the name fits,,,
 "Project Diva" ... "Project Love" (Cuz,,,, project diva maps in love2d?? idk,,)
 
+Right now most things are in 1 file, due to it being just a "proof of concept" (is that the right thing?) currently...
+
 
 # NOTE 
 

@@ -3,7 +3,13 @@
 idk i thought the name fits,,,
 "Project Diva" ... "Project Love" (Cuz,,,, project diva maps in love2d?? idk,,)
 
-something i quickly threw together for fun, just can load project diva (FT) maps
 
+# NOTE 
 
-(thanks to TWITTER user @Nima_x7 for the name)
+The test chart that is included is from this mod: https://gamebanana.com/mods/478652
+
+# Credits
+- @Nima_x7 - The name of the project
+- Eden Project Devs - The chart used for testing
+
+- (To add more.)

@@ -151,7 +151,7 @@ audio = love.audio.newSource("pv_3148.ogg", "stream")
 
 Timer.after(1, function() 
     audio:play()
-    bg:play()
+    if bg then bg:play() end
     Timer.after(DELAY, function()
         canUpdate = true
     end)

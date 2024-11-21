@@ -1,5 +1,5 @@
 charthandler = require("charthandler")
-Timer = require("Timer")
+Timer = require("lib.Timer")
 ffi = require("ffi")
 
 ffi.cdef[[
@@ -10,50 +10,49 @@ ffi.cdef[[
 ]]
 
 local assetsRefNormal = {
-    love.graphics.newImage("left_note.png"),
-    love.graphics.newImage("down_note.png"),
-    love.graphics.newImage("up_note.png"),
-    love.graphics.newImage("right_note.png"),
-    love.graphics.newImage("slide_left_note.png"),
-    love.graphics.newImage("slide_right_note.png"),
-    love.graphics.newImage("slide_chain_piece_left_note.png"),
-    love.graphics.newImage("slide_chain_piece_right_note.png"),
+    love.graphics.newImage("assets/img/left_note.png"),
+    love.graphics.newImage("assets/img/down_note.png"),
+    love.graphics.newImage("assets/img/up_note.png"),
+    love.graphics.newImage("assets/img/right_note.png"),
+    love.graphics.newImage("assets/img/slide_left_note.png"),
+    love.graphics.newImage("assets/img/slide_right_note.png"),
+    love.graphics.newImage("assets/img/slide_chain_piece_left_note.png"),
+    love.graphics.newImage("assets/img/slide_chain_piece_right_note.png"),
 }
 
 local assetsRefTarget = {
-    love.graphics.newImage("left_target.png"),
-    love.graphics.newImage("down_target.png"),
-    love.graphics.newImage("up_target.png"),
-    love.graphics.newImage("right_target.png"),
-    love.graphics.newImage("slide_left_target.png"),
-    love.graphics.newImage("slide_right_target.png"),
-    love.graphics.newImage("slide_chain_piece_left_target.png"),
-    love.graphics.newImage("slide_chain_piece_right_target.png"),
+    love.graphics.newImage("assets/img/left_target.png"),
+    love.graphics.newImage("assets/img/down_target.png"),
+    love.graphics.newImage("assets/img/up_target.png"),
+    love.graphics.newImage("assets/img/right_target.png"),
+    love.graphics.newImage("assets/img/slide_left_target.png"),
+    love.graphics.newImage("assets/img/slide_right_target.png"),
+    love.graphics.newImage("assets/img/slide_chain_piece_left_target.png"),
+    love.graphics.newImage("assets/img/slide_chain_piece_right_target.png"),
 }
 
 local assetsDoubleRefNormal = {
-    love.graphics.newImage("left_multi_note.png"),
-    love.graphics.newImage("down_multi_note.png"),
-    love.graphics.newImage("up_multi_note.png"),
-    love.graphics.newImage("right_multi_note.png"),
-    love.graphics.newImage("slide_left_multi_note.png"),
-    love.graphics.newImage("slide_right_multi_note.png")
+    love.graphics.newImage("assets/img/left_multi_note.png"),
+    love.graphics.newImage("assets/img/down_multi_note.png"),
+    love.graphics.newImage("assets/img/up_multi_note.png"),
+    love.graphics.newImage("assets/img/right_multi_note.png"),
+    love.graphics.newImage("assets/img/slide_left_multi_note.png"),
+    love.graphics.newImage("assets/img/slide_right_multi_note.png")
 }
 
 local assetsDoubleRefTarget = {
-    love.graphics.newImage("left_multi_note_target.png"),
-    love.graphics.newImage("down_multi_note_target.png"),
-    love.graphics.newImage("up_multi_note_target.png"),
-    love.graphics.newImage("right_multi_note_target.png"),
-    love.graphics.newImage("slide_left_multi_note_target.png"),
-    love.graphics.newImage("slide_right_multi_note_target.png")
+    love.graphics.newImage("assets/img/left_multi_note_target.png"),
+    love.graphics.newImage("assets/img/down_multi_note_target.png"),
+    love.graphics.newImage("assets/img/up_multi_note_target.png"),
+    love.graphics.newImage("assets/img/right_multi_note_target.png"),
+    love.graphics.newImage("assets/img/slide_left_multi_note_target.png"),
+    love.graphics.newImage("assets/img/slide_right_multi_note_target.png")
 }
 
-local dial = love.graphics.newImage("dial.png")
-local hitsound = love.audio.newSource("hitsound.wav", "static")
-local slidehitsound = love.audio.newSource("slidehitsound.wav", "static")
-local chart = processFile("pv_3147_hard.dsc")
-audio = love.audio.newSource("pv_3147.ogg", "stream")
+local dial = love.graphics.newImage("assets/img/dial.png")
+local chart = processFile("assets/song/pv_3147/pv_3147_hard.dsc")
+audio = love.audio.newSource("assets/song/pv_3147/pv_3147.ogg", "stream")
+bg = love.graphics.newVideo("assets/song/pv_3147/pv_3147.ogv")
 
 notes = {}
 counter = 1
@@ -197,8 +196,6 @@ end
 musicTime = 0
 canUpdate = false
 
-bg = love.graphics.newVideo("pv_3147.ogv")
-
 Timer.after(0.15, function() 
     audio:play()
     if bg then bg:play() end
@@ -217,8 +214,8 @@ local inputs = {
 }
 
 local sounds = {
-    love.audio.newSource("hitsound.wav", "static"),
-    love.audio.newSource("slidehitsound.wav", "static")
+    love.audio.newSource("assets/sound/hitsound.wav", "static"),
+    love.audio.newSource("assets/sound/slidehitsound.wav", "static")
 }
 
 local holdInputs = {

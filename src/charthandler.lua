@@ -127,6 +127,7 @@ local opc, len, params
 function processFile(filename, fmt)
     local fmt = fmt or "ft"
     local chart = {}
+    --[[ print("Processing file: " .. filename) ]]
     local file = io.open(filename, "rb")
     if not file then
         error("Failed to open file")

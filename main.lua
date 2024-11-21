@@ -199,7 +199,7 @@ canUpdate = false
 
 bg = love.graphics.newVideo("pv_3147.ogv")
 
-Timer.after(1, function() 
+Timer.after(0.15, function() 
     audio:play()
     if bg then bg:play() end
     Timer.after(DELAY, function()

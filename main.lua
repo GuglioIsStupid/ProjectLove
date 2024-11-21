@@ -1,7 +1,7 @@
 charthandler = require("charthandler")
 Timer = require("Timer")
 ffi = require("ffi")
--- Define a structure to read 32-bit integers from binary data
+
 ffi.cdef[[
     typedef union {
         int32_t i32;
@@ -9,21 +9,51 @@ ffi.cdef[[
     } int32_union;
 ]]
 
-local assetsRef = {
+local assetsRefNormal = {
     love.graphics.newImage("left_note.png"),
     love.graphics.newImage("down_note.png"),
     love.graphics.newImage("up_note.png"),
     love.graphics.newImage("right_note.png"),
+    love.graphics.newImage("slide_left_note.png"),
+    love.graphics.newImage("slide_right_note.png"),
     love.graphics.newImage("slide_chain_piece_left_note.png"),
     love.graphics.newImage("slide_chain_piece_right_note.png"),
+}
+
+local assetsRefTarget = {
+    love.graphics.newImage("left_target.png"),
+    love.graphics.newImage("down_target.png"),
+    love.graphics.newImage("up_target.png"),
+    love.graphics.newImage("right_target.png"),
+    love.graphics.newImage("slide_left_target.png"),
+    love.graphics.newImage("slide_right_target.png"),
     love.graphics.newImage("slide_chain_piece_left_target.png"),
     love.graphics.newImage("slide_chain_piece_right_target.png"),
 }
 
-local dial = love.graphics.newImage("dial.png")
+local assetsDoubleRefNormal = {
+    love.graphics.newImage("left_multi_note.png"),
+    love.graphics.newImage("down_multi_note.png"),
+    love.graphics.newImage("up_multi_note.png"),
+    love.graphics.newImage("right_multi_note.png"),
+    love.graphics.newImage("slide_left_multi_note.png"),
+    love.graphics.newImage("slide_right_multi_note.png")
+}
 
-local chart = processFile("pv_764_extreme.dsc")
-audio = love.audio.newSource("pv_764.ogg", "stream")
+local assetsDoubleRefTarget = {
+    love.graphics.newImage("left_multi_note_target.png"),
+    love.graphics.newImage("down_multi_note_target.png"),
+    love.graphics.newImage("up_multi_note_target.png"),
+    love.graphics.newImage("right_multi_note_target.png"),
+    love.graphics.newImage("slide_left_multi_note_target.png"),
+    love.graphics.newImage("slide_right_multi_note_target.png")
+}
+
+local dial = love.graphics.newImage("dial.png")
+local hitsound = love.audio.newSource("hitsound.wav", "static")
+local slidehitsound = love.audio.newSource("slidehitsound.wav", "static")
+local chart = processFile("pv_3147_hard.dsc")
+audio = love.audio.newSource("pv_3147.ogg", "stream")
 
 notes = {}
 counter = 1
@@ -76,8 +106,9 @@ function setTarget(command, musicTime)
         distance = (command.params[5]),
         amplitude = (command.params[5]),
         tft = command.params[10] or currentTft,
-        ts = command.params[11],
-        time = musicTime
+        ts = command.params[11], 
+        time = musicTime,
+        isDouble = command.params[12]
     })
 end
 
@@ -105,8 +136,9 @@ local function spawnTarget(tgt)
     note.tft = tgt.tft
     note.hitTime = tgt.time + tgt.tft*100
     note.shrinkTime = tgt.time + tgt.tft*110
-    note.scale = 1
+    note.scale = 0.9
     note.dialAngle = 0
+    note.isDouble = tgt.isDouble
 
     table.insert(spawned.moving, note)
     note.id = #spawned.moving
@@ -116,19 +148,6 @@ local function spawnTarget(tgt)
 
     local imgID = 0
     local type = tgt.type
-
-    if lastTarget then
-        if type == lastTarget.type and target.x < lastTarget.x and target.y == target.y then
-            if type == 12 then
-                type = 15
-            elseif type == 16 then
-                type = 13
-                
-            end
-        end
-
-        lastTarget = tgt
-    end
 
     if type == 0 or type == 4 or type == 8 or type == 18 then
         imgID = 3
@@ -153,7 +172,24 @@ local function spawnTarget(tgt)
     target.imgID = imgID
     note.imgID = imgID
 
-    lastTarget = tgt
+    local dontForceLols = false
+    if lastTarget and (lastTarget.imgID == 7 or lastTarget.imgID == 8) and not lastTarget.dontDoIt then
+        if lastTarget.imgID == 7 then
+            lastTarget.imgID = 5
+            lastTarget.note.imgID = 5
+            lastTarget.showDial = true
+        else    
+            lastTarget.imgID = 6
+            lastTarget.note.imgID = 6
+            lastTarget.showDial = true
+        end
+
+        dontForceLols = true
+    end
+
+    target.dontDoIt = dontForceLols
+
+    lastTarget = target
 
     initializeLinearMove(note, target)
 end
@@ -161,7 +197,7 @@ end
 musicTime = 0
 canUpdate = false
 
---[[ bg = love.graphics.newVideo("video.ogv") ]]
+bg = love.graphics.newVideo("pv_3147.ogv")
 
 Timer.after(1, function() 
     audio:play()
@@ -170,6 +206,25 @@ Timer.after(1, function()
         canUpdate = true
     end)
 end)
+
+local inputs = {
+    {"a", "j", id = 3, sound=1},
+    {"s", "k", id = 4, sound=1},
+    {"w", "i", id = 2, sound=1},
+    {"d", "l", id = 1, sound=1},
+    {"q", "u", id = 5, sound=2},
+    {"e", "o", id = 6, sound=2}
+}
+
+local sounds = {
+    love.audio.newSource("hitsound.wav", "static"),
+    love.audio.newSource("slidehitsound.wav", "static")
+}
+
+local holdInputs = {
+    {"q", "u", id = 7},
+    {"e", "o", id = 8}
+}
 
 function love.update(dt)
     if canUpdate then
@@ -207,7 +262,7 @@ function love.update(dt)
             local remainingTime = note.shrinkTime - musicTime
             local totalShrinkDuration = note.shrinkTime - note.hitTime
 
-            note.scale = math.max(0, remainingTime / totalShrinkDuration)
+            note.scale = math.max(0, remainingTime / totalShrinkDuration * 0.9)
 
             if note.scale <= 0 then
                 note.visible = false
@@ -217,6 +272,51 @@ function love.update(dt)
             if note.scale <= 0 then
                 note.visible = false
                 note.parent.visible = false
+            end
+        end
+
+        for i, input in ipairs(holdInputs) do
+            if love.keyboard.isDown(input[1]) or love.keyboard.isDown(input[2]) then
+                local absTime = math.abs(musicTime - note.hitTime)
+                if absTime < 1000 then
+                    -- hit !
+                    note.visible = false
+                    note.parent.visible = false
+                    combo = combo + 1
+                end
+            end
+        end
+    end
+end
+
+function love.keypressed(key)
+    for i, v in ipairs(inputs) do
+       if key == v[1] or key == v[2] then
+            sounds[v.sound]:clone():play()
+        end
+    end
+    for i, moving in ipairs(spawned.moving) do
+        if moving.visible and moving.imgID < 7 then
+            if key == inputs[moving.imgID][1] or key == inputs[moving.imgID][2] then
+                local absTime = math.abs(musicTime - moving.hitTime)
+
+                if absTime < 20000 then
+                    if moving.isDouble then
+                        if moving.parent.imgID == 5 then
+                            moving.parent.imgID = 7
+                            moving.parent.note.imgID = 7
+                        else
+                            moving.parent.imgID = 8
+                            moving.parent.note.imgID = 8
+                        end
+                    end
+
+                    moving.visible = false
+                    moving.parent.visible = false
+                    combo = combo + 1
+
+                    break
+                end
             end
         end
     end
@@ -227,22 +327,15 @@ function love.draw()
         love.graphics.draw(bg, 0, 0, 0, 1280/bg:getWidth(), 720/bg:getHeight())
     end
 
-    love.graphics.setColor(0, 0, 0)
-    for x = -1, 1 do
-        for y = -1, 1 do
-            love.graphics.print(love.timer.getFPS(), 5+x, 5+y)
-        end
-    end
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print(love.timer.getFPS(), 5, 5)
-
     for _, target in ipairs(spawned.targets) do
         if target.visible then
-            love.graphics.setColor(0.5, 0.5, 0.5)
-            love.graphics.draw(assetsRef[target.imgID], target.x, target.y, 0, 1, 1, assetsRef[target.imgID]:getWidth()/2, assetsRef[target.imgID]:getHeight()/2)
+            if not target.note.isDouble then
+                love.graphics.draw(assetsRefTarget[target.imgID], target.x, target.y, 0, 0.9, 0.9, assetsRefTarget[target.imgID]:getWidth()/2, assetsRefTarget[target.imgID]:getHeight()/2)
+            else
+                love.graphics.draw(assetsDoubleRefTarget[target.imgID], target.x, target.y, 0, 0.9, 0.9, assetsDoubleRefTarget[target.imgID]:getWidth()/2, assetsDoubleRefTarget[target.imgID]:getHeight()/2)
+            end
 
             if target.note.showDial then
-                love.graphics.setColor(1, 1, 1)
                 love.graphics.draw(dial, target.x, target.y, math.rad(target.note.dialAngle), 0.9, 0.9, dial:getWidth()/2, dial:getHeight()-11)
             end
         end
@@ -251,7 +344,21 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
     for _, moving in ipairs(spawned.moving) do
         if moving.visible then
-            love.graphics.draw(assetsRef[moving.imgID], moving.x, moving.y, 0, moving.scale, moving.scale, assetsRef[moving.imgID]:getWidth()/2, assetsRef[moving.imgID]:getHeight()/2)
+            --love.graphics.draw(assetsRefNormal[moving.imgID], moving.x, moving.y, 0, moving.scale, moving.scale, assetsRefNormal[moving.imgID]:getWidth()/2, assetsRefNormal[moving.imgID]:getHeight()/2)
+            if not moving.isDouble then
+                love.graphics.draw(assetsRefNormal[moving.imgID], moving.x, moving.y, 0, moving.scale, moving.scale, assetsRefNormal[moving.imgID]:getWidth()/2, assetsRefNormal[moving.imgID]:getHeight()/2)
+            else
+                love.graphics.draw(assetsDoubleRefNormal[moving.imgID], moving.x, moving.y, 0, moving.scale, moving.scale, assetsDoubleRefNormal[moving.imgID]:getWidth()/2, assetsDoubleRefNormal[moving.imgID]:getHeight()/2)
+            end
         end
     end
+
+    love.graphics.setColor(0, 0, 0)
+    for x = -1, 1 do
+        for y = -1, 1 do
+            love.graphics.print(love.timer.getFPS(), 5+x, 5+y)
+        end
+    end
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(love.timer.getFPS(), 5, 5)
 end

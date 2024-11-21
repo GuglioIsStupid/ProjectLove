@@ -1,5 +1,10 @@
 {
     "Lua.diagnostics.disable": [
-        "redefined-local"
+        "redefined-local",
+        "lowercase-global"
+    ],
+    "Lua.diagnostics.globals": [
+        "love",
+        "bg"
     ]
 }

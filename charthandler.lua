@@ -200,6 +200,22 @@ function processFile(filename, fmt)
         print("warning: Unknown opcodes were found.\nThe file may be corrupt")
     end
 
+    table.sort(chart, function(a, b)
+        return a.time < b.time
+    end)
+
+    -- look for notes with same time, if found, set params[12] to true
+    for i = 1, #chart do
+        if chart[i].type == "TARGET" then
+            for j = i + 1, #chart do
+                if chart[j].type == "TARGET" and chart[j].time == chart[i].time then
+                    chart[i].params[12] = true
+                    chart[j].params[12] = true
+                end
+            end
+        end
+    end
+
     return chart, commands
 end
 

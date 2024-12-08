@@ -1,0 +1,3 @@
+local songpackhandler = {}
+
+return songpackhandler

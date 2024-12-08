@@ -1,5 +1,7 @@
-charthandler = require("charthandler")
+charthandler = require("modules.SongHandler")
+songPackHandler = require("modules.SongPackHandler")
 Timer = require("lib.Timer")
+State = require("lib.State")
 ffi = require("ffi")
 
 ffi.cdef[[
@@ -9,31 +11,27 @@ ffi.cdef[[
     } int32_union;
 ]]
 
-Timer.after(0.15, function() 
-    audio:play()
-    if bg then bg:play() end
-    Timer.after(DELAY, function()
-        canUpdate = true
-    end)
-end)
-
 states = {
-    game = require("states.game"),
+    game = require("states.Game"),
 }
 
-local currentstate = states.game
+State.switch(states.game)
+
+function love.load()
+    love.filesystem.createDirectory("SongPacks")
+end
 
 function love.update(dt)
-    currentstate:update(dt)
+    State.update(dt)
     Timer.update(dt)
 end
 
 function love.keypressed(key)
-    currentstate:keypressed(key)
+    State.keypressed(key)
 end
 
 function love.draw()
-    currentstate:draw()
+    State.draw()
 
     love.graphics.setColor(0, 0, 0)
     for x = -1, 1 do

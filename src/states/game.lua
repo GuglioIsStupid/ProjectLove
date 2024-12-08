@@ -39,35 +39,35 @@ local assetsDoubleRefTarget = {
 }
 
 local dial = love.graphics.newImage("assets/img/dial.png")
-local chart = processFile("assets/song/pv_3147/pv_3147_hard.dsc")
+local chart = charthandler.processFile("assets/song/pv_3147/pv_3147_hard.dsc")
 audio = love.audio.newSource("assets/song/pv_3147/pv_3147.ogg", "stream")
 bg = love.graphics.newVideo("assets/song/pv_3147/pv_3147.ogv")
 
-notes = {}
-counter = 1
-timer = 0
-flyTime = 100000
-finished = false
-current = 0
-mask = 0
-mask2 = 00
-statTimer = 0
-holdNotes = 0
-holdStart = 0
-holdTimer = 0
-holdScore = 0
-slideCount = 0
-slideBroken = false
-combo = 0
-life = 127
-results = {}
-DELAY = 0
+local notes = {}
+local counter = 1
+local timer = 0
+local flyTime = 100000
+local finished = false
+local current = 0
+local mask = 0
+local mask2 = 00
+local statTimer = 0
+local holdNotes = 0
+local holdStart = 0
+local holdTimer = 0
+local holdScore = 0
+local slideCount = 0
+local slideBroken = false
+local combo = 0
+local life = 127
+local results = {}
+local DELAY = 0
 
-currentTft = 750
+local currentTft = 750
 
 love.audio.setVolume(0.25)
 
-spawned = {
+local spawned = {
     targets = {},
     moving = {}
 }
@@ -207,7 +207,13 @@ local holdInputs = {
 local game = {}
 
 function game:enter()
-
+    Timer.after(0.15, function() 
+        audio:play()
+        if bg then bg:play() end
+        Timer.after(DELAY, function()
+            canUpdate = true
+        end)
+    end)
 end
 
 function game:update(dt)

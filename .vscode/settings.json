@@ -1,10 +1,12 @@
 {
     "Lua.diagnostics.disable": [
         "redefined-local",
-        "lowercase-global"
+        "lowercase-global",
+        "undefined-field"
     ],
     "Lua.diagnostics.globals": [
         "love",
         "bg"
-    ]
+    ],
+    "pixelbyte.love2d.srcDir": "./src/",
 }

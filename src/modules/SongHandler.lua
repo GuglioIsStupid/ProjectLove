@@ -124,7 +124,7 @@ end
 local CURRENT_TIME = 0
 
 local opc, len, params
-function processFile(filename, fmt)
+function handler.processFile(filename, fmt)
     local fmt = fmt or "ft"
     local chart = {}
     local file = io.open(   love.filesystem.getSource() .. "/" .. filename, "rb")
